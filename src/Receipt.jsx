@@ -24,10 +24,13 @@ export default function Receipt({ data }) {
             position: absolute;
             left: 0;
             top: 0;
-            width: 58mm;
-            padding: 4mm;
-            font-family: monospace;
-            font-size: 11px;
+            width: 48mm;
+            max-width: 48mm;
+            box-sizing: border-box;
+            padding: 2mm 1mm;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10px;
+            line-height: 1.2;
             color: #000;
           }
           .text-center { text-align: center; }
@@ -37,24 +40,29 @@ export default function Receipt({ data }) {
       `}</style>
 
       <div className="text-center">
-        <strong style={{ fontSize: '13px' }}>TOKO KASIR</strong><br />
-        Jl. Pangeran Antasari<br />
+        <strong style={{ fontSize: '13px' }}>NIAGANTA POS</strong><br />
         <div className="divider" />
         No: {data.id}<br />
         {new Date(data.date).toLocaleString('id-ID')}<br />
         <div className="divider" />
       </div>
 
-      <table style={{ width: '100%', fontSize: '10px' }}>
+      <table style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse' }}>
         <tbody>
           {data.items.map((item, idx) => (
             <React.Fragment key={idx}>
               <tr>
-                <td colSpan="2">{item.name}</td>
+                <td colSpan="2" style={{ wordBreak: 'break-word', paddingTop: '2px' }}>
+                  {item.name}
+                </td>
               </tr>
               <tr>
-                <td>{item.qty} x {item.price.toLocaleString('id-ID')}</td>
-                <td className="text-right">{(item.qty * item.price).toLocaleString('id-ID')}</td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  {item.qty} x {item.price.toLocaleString('id-ID')}
+                </td>
+                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>
+                  {(item.qty * item.price).toLocaleString('id-ID')}
+                </td>
               </tr>
             </React.Fragment>
           ))}
