@@ -1,12 +1,14 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
+let mainWindow;
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    title: 'Niaganta POS',
+    title: 'Niaganta Pos',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -14,11 +16,27 @@ function createWindow() {
   });
 
   if (app.isPackaged) {
-    win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
   } else {
-    win.loadURL('http://localhost:5173');
+    mainWindow.loadURL('http://localhost:5173');
   }
 }
+
+// Handler Cetak Struk Langsung (Silent Print)
+ipcMain.on('print-receipt', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win) return;
+
+  win.webContents.print({
+    silent: true,               // Cetak otomatis tanpa memunculkan dialog Windows
+    printBackground: true,       // Background dan garis pembatas struk ikut tercetak
+    deviceName: ''               // Kosongkan untuk printer default, atau isi nama printer thermal kamu
+  }, (success, failureReason) => {
+    if (!success) {
+      console.log('Gagal mencetak struk thermal:', failureReason);
+    }
+  });
+});
 
 app.whenReady().then(createWindow);
 

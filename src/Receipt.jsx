@@ -1,18 +1,33 @@
 import React from 'react';
 
-export default function Receipt({ data }) {
+export default function Receipt({ data, storeInfo }) {
   if (!data) return null;
 
+  const info = storeInfo || {
+    storeName: 'Niaganta Pos',
+    address: 'Jl. Kediri No. 4',
+    phone: '-',
+    footerMsg: 'Terima kasih!'
+  };
+
   return (
-    <div id="thermal-receipt">
+    <div id="thermal-receipt" className="receipt-container">
       <style>{`
         @media screen {
-          #thermal-receipt { display: none; }
+          #thermal-receipt {
+            display: none !important;
+            pointer-events: none !important;
+          }
         }
         @media print {
           @page {
-            size: 58mm auto;
             margin: 0;
+            size: 58mm auto;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
           }
           body * {
             visibility: hidden;
@@ -25,67 +40,74 @@ export default function Receipt({ data }) {
             left: 0;
             top: 0;
             width: 48mm;
-            max-width: 48mm;
-            box-sizing: border-box;
-            padding: 2mm 1mm;
+            padding: 4mm 2mm;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 10px;
-            line-height: 1.2;
+            font-size: 11px;
+            line-height: 1.25;
             color: #000;
           }
-          .text-center { text-align: center; }
-          .text-right { text-align: right; }
-          .divider { border-bottom: 1px dashed #000; margin: 4px 0; }
+          .receipt-center {
+            text-align: center;
+          }
+          .receipt-divider {
+            border-top: 1px dashed #000;
+            margin: 4px 0;
+          }
+          .receipt-row {
+            display: flex;
+            justify-content: space-between;
+          }
         }
       `}</style>
 
-      <div className="text-center">
-        <strong style={{ fontSize: '13px' }}>NIAGANTA POS</strong><br />
-        <div className="divider" />
-        No: {data.id}<br />
-        {new Date(data.date).toLocaleString('id-ID')}<br />
-        <div className="divider" />
+      {/* Header Nota */}
+      <div className="receipt-center">
+        <strong style={{ fontSize: '13px' }}>{info.storeName}</strong>
+        <div>{info.address}</div>
+        <div>Telp: {info.phone}</div>
       </div>
 
-      <table style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse' }}>
-        <tbody>
-          {data.items.map((item, idx) => (
-            <React.Fragment key={idx}>
-              <tr>
-                <td colSpan="2" style={{ wordBreak: 'break-word', paddingTop: '2px' }}>
-                  {item.name}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ whiteSpace: 'nowrap' }}>
-                  {item.qty} x {item.price.toLocaleString('id-ID')}
-                </td>
-                <td className="text-right" style={{ whiteSpace: 'nowrap' }}>
-                  {(item.qty * item.price).toLocaleString('id-ID')}
-                </td>
-              </tr>
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
+      <div className="receipt-divider" />
 
-      <div className="divider" />
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span>Total:</span>
+      {/* Info Transaksi */}
+      <div>No  : {data.id}</div>
+      <div>Tgl : {new Date(data.date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+      <div>Met : {data.method}</div>
+
+      <div className="receipt-divider" />
+
+      {/* Daftar Barang */}
+      {data.items.map((item, idx) => (
+        <div key={idx} style={{ marginBottom: '3px' }}>
+          <div>{item.name}</div>
+          <div className="receipt-row">
+            <span>{item.qty} x {item.price.toLocaleString('id-ID')}</span>
+            <span>{(item.qty * item.price).toLocaleString('id-ID')}</span>
+          </div>
+        </div>
+      ))}
+
+      <div className="receipt-divider" />
+
+      {/* Total & Bayar */}
+      <div className="receipt-row">
+        <strong>TOTAL:</strong>
         <strong>Rp {data.total.toLocaleString('id-ID')}</strong>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span>Tunai:</span>
+      <div className="receipt-row">
+        <span>BAYAR ({data.method}):</span>
         <span>Rp {data.cash.toLocaleString('id-ID')}</span>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span>Kembali:</span>
+      <div className="receipt-row">
+        <span>KEMBALI:</span>
         <span>Rp {data.change.toLocaleString('id-ID')}</span>
       </div>
-      <div className="divider" />
 
-      <div className="text-center" style={{ marginTop: '6px' }}>
-        Terima kasih atas kunjungannya!
+      <div className="receipt-divider" />
+
+      {/* Footer Nota */}
+      <div className="receipt-center" style={{ marginTop: '4px' }}>
+        <div>{info.footerMsg}</div>
       </div>
     </div>
   );
